@@ -39,7 +39,7 @@ void bfs(Tree t) {
             flag = 1;
         for (i = 0; i < 27; i++) {
             if (aux->children[i] != NULL && aux->children[i]->c != 0) {
-                if (last < t->nr) {
+                if (last < 3000) {
                     queue[last++] = aux->children[i];
                 }
             }
@@ -61,60 +61,31 @@ void getSufix(Tree *t, char *s) {
             index = 0;
         else
             index = sufix[0] - 'a' + 1;
-        if (current->children[index]->c == 0) {
-            current->children[index]->c = sufix[0];
-            // (*t)->children[index]->nr = (*t)->nr + 1;
-            // printf("%c\n", sufix[0]);
-            sufix++;
-            while(sufix[0] != '\0') {
-                // printf("%s\n", sufix);
-                aux = current->children[index];
-                for (j = 0; j < 27; j++) {
-                    aux->children[j] = malloc(sizeof(Node));
-                    aux->children[j]->c = 0;
-                    aux->children[j]->nr = 0;
-                }
-                if(sufix[0] == '$')
-                    index = 0;
-                else
-                    index = sufix[0] - 'a' + 1;
-                aux->children[index]->c = sufix[0];
-                // aux->children[index]->nr = aux->nr + 1;
-                sufix++;
-                if (current->children[index] != NULL) {
-                    current = aux;
-                }
-            }
-        }
-        else {
-            sufix++;
+        aux = current;
+        while(sufix[0] != '\0' && aux->children[index] != NULL && aux->children[index]->c != 0) {
             if(sufix[0] == '$')
                 index = 0;
             else
                 index = sufix[0] - 'a' + 1;
-            aux = current->children[index];
-            while(sufix[0] != '\0') {
-                // printf("%s\n", sufix);
+            aux = aux->children[index];
+            sufix++;
+        }
+        while(sufix[0] != '\0') {
+            if(aux->children[index] == NULL)
                 for (j = 0; j < 27; j++) {
                     aux->children[j] = malloc(sizeof(Node));
                     aux->children[j]->c = 0;
                     aux->children[j]->nr = 0;
                 }
-                if(sufix[0] == '$')
-                    index = 0;
-                else
-                    index = sufix[0] - 'a' + 1;
-                aux->children[index]->c = sufix[0];
-                // aux->children[index]->nr = aux->nr + 1;
-                sufix++;
-                if (current->children[index] != NULL) {
-                    current = aux;
-                }
-            }
-            // current = current->children[index];
-
+            if(sufix[0] == '$')
+                index = 0;
+            else
+                index = sufix[0] - 'a' + 1;
+            aux->children[index]->c = sufix[0];
+            // aux->children[index]->nr = aux->nr + 1;
+            sufix++;
+            aux = aux->children[index];
         }
-        
     }
 }
 
