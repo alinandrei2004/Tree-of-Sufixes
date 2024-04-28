@@ -15,14 +15,14 @@ void init(Tree *t) {
     for (i = 0; i < 27; i++) {
         (*t)->children[i] = malloc(sizeof(Node));
         (*t)->children[i]->c = 0;
-        (*t)->children[i]->nr = 0;
+        (*t)->children[i]->nr = 1;
     }
     // (*t)->children[0]->c = '$';
     (*t)->nr = 1;
 }
 
-void bfs(Tree t) {
-    int first = 0, last = 0, i, flag = 0;
+void bfs(Tree t, FILE *g) {
+    int first = 0, last = 0, i, flag = 1;
     Tree queue[3000];
     Tree aux;
     for(i = 0; i < 27; i++) {
@@ -32,11 +32,10 @@ void bfs(Tree t) {
     }
     while (first < last) {
         aux = queue[first++];
-        // if(flag == 1 && aux->c == '$')
-        //     printf("\n");
-        printf("%c ", aux->c);
-        if(aux->c == '$')
-            flag = 1;
+        if(aux->nr != flag)
+            fprintf(g, "\n");
+        fprintf(g, "%c ", aux->c);
+        // printf("%d ", aux->nr);
         for (i = 0; i < 27; i++) {
             if (aux->children[i] != NULL && aux->children[i]->c != 0) {
                 if (last < 3000) {
@@ -44,8 +43,9 @@ void bfs(Tree t) {
                 }
             }
         }
+        flag = aux->nr;
     }
-    printf("\n");
+    fprintf(g, "\n");
 }
 
 void getSufix(Tree *t, char *s) {
@@ -53,10 +53,9 @@ void getSufix(Tree *t, char *s) {
     Tree aux, current = *t;
     char *sufix = (char*) malloc(100 * sizeof(char));
     len = strlen(s);
-    (*t)->nr = len;
+    (*t)->nr = 0;
     for (i = len - 1; i >= 0; i--) {
         sufix = s + i;
-        // printf("%s\n", sufix);
         if(sufix[0] == '$')
             index = 0;
         else
@@ -75,7 +74,7 @@ void getSufix(Tree *t, char *s) {
                 for (j = 0; j < 27; j++) {
                     aux->children[j] = malloc(sizeof(Node));
                     aux->children[j]->c = 0;
-                    aux->children[j]->nr = 0;
+                    aux->children[j]->nr = aux->nr + 1;
                 }
             if(sufix[0] == '$')
                 index = 0;
@@ -89,12 +88,12 @@ void getSufix(Tree *t, char *s) {
     }
 }
 
-void task1(Tree *t, char **cuv, int n) {
+void task1(Tree *t, char **cuv, int n, FILE *g) {
     int i;
     for(i = 0; i < n; i++) {
         getSufix(&(*t), cuv[i]);
     }
-    bfs(*t);
+    bfs(*t, g);
 }
 
 void freeMemory(Tree *t) {
@@ -137,7 +136,7 @@ int main (int argc, char *argv[]) {
         opt = argv[1][2];
         switch (opt) {
             case '1':
-                task1(&t, cuv, n);
+                task1(&t, cuv, n, g);
                 break;
             case '2':
                 break;
