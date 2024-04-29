@@ -53,7 +53,7 @@ void getSufix(Tree *t, char *s) {
     Tree aux, current = *t;
     char *sufix = (char*) malloc(100 * sizeof(char));
     len = strlen(s);
-    (*t)->nr = 0;
+    // (*t)->nr = 0;
     for (i = len - 1; i >= 0; i--) {
         sufix = s + i;
         if(sufix[0] == '$')
@@ -62,12 +62,13 @@ void getSufix(Tree *t, char *s) {
             index = sufix[0] - 'a' + 1;
         aux = current;
         while(sufix[0] != '\0' && aux->children[index] != NULL && aux->children[index]->c != 0) {
+            aux = aux->children[index];
+            sufix++;
             if(sufix[0] == '$')
                 index = 0;
             else
                 index = sufix[0] - 'a' + 1;
-            aux = aux->children[index];
-            sufix++;
+            
         }
         while(sufix[0] != '\0') {
             if(aux->children[index] == NULL)
@@ -81,9 +82,8 @@ void getSufix(Tree *t, char *s) {
             else
                 index = sufix[0] - 'a' + 1;
             aux->children[index]->c = sufix[0];
-            // aux->children[index]->nr = aux->nr + 1;
-            sufix++;
             aux = aux->children[index];
+            sufix++;
         }
     }
 }
