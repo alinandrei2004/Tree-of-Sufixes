@@ -8,6 +8,11 @@ typedef struct node {
     struct node *children[27];
 } Node, *Tree;
 
+typedef struct queue {
+    Tree t;
+    struct queue *next;
+} Queue;
+
 // functie pentru initializarea arborelui
 void init(Tree *t) {
     int i;
@@ -22,28 +27,53 @@ void init(Tree *t) {
 }
 
 void bfs(Tree t, FILE *g) {
-    int first = 0, last = 0, i, flag = 1;
-    Tree queue[3000];
-    Tree aux;
-    for(i = 0; i < 27; i++) {
+    Queue *first = NULL, *last = NULL, *aux;
+    int i, flag = 1;
+    for (i = 0; i < 27; i++) {
         if(t->children[i]->c != 0) {
-            queue[last++] = t->children[i];
+            if(first == NULL) {
+                first = malloc(sizeof(Queue));
+                first->t = t->children[i];
+                first->next = NULL;
+                last = first;
+            }
+            else {
+                aux = malloc(sizeof(Queue));
+                aux->t = t->children[i];
+                aux->next = NULL;
+                last->next = aux;
+                last = aux;
+            }
         }
     }
-    while (first < last) {
-        aux = queue[first++];
-        if(aux->nr != flag)
+    while (first != NULL) {
+        aux = first;
+        first = first->next;
+        if(aux->t->nr != flag)
             fprintf(g, "\n");
-        fprintf(g, "%c ", aux->c);
-        // printf("%d ", aux->nr);
+        fprintf(g, "%c ", aux->t->c);
         for (i = 0; i < 27; i++) {
-            if (aux->children[i] != NULL && aux->children[i]->c != 0) {
-                if (last < 3000) {
-                    queue[last++] = aux->children[i];
+            if (aux->t->children[i] != NULL && aux->t->children[i]->c != 0) {
+                if (last == NULL) {
+                    first = malloc(sizeof(Queue));
+                    first->t = aux->t->children[i];
+                    first->next = NULL;
+                    last = first;
+                }
+                else {
+                    Queue *new = malloc(sizeof(Queue));
+                    new->t = aux->t->children[i];
+                    new->next = NULL;
+                    last->next = new;
+                    last = new;
                 }
             }
         }
-        flag = aux->nr;
+        flag = aux->t->nr;
+        free(aux);
+    }
+    if(last->t->c != 0) {
+        fprintf(g, "\n%c ", last->t->c);
     }
     fprintf(g, "\n");
 }
