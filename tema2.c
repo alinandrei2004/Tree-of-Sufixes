@@ -23,7 +23,7 @@ void init(Tree *t) {
         (*t)->children[i]->nr = 1;
     }
     // (*t)->children[0]->c = '$';
-    (*t)->nr = 1;
+    (*t)->nr = 0;
 }
 
 void bfs(Tree t, FILE *g) {
@@ -83,7 +83,6 @@ void getSufix(Tree *t, char *s) {
     Tree aux, current = *t;
     char *sufix = (char*) malloc(100 * sizeof(char));
     len = strlen(s);
-    // (*t)->nr = 0;
     for (i = len - 1; i >= 0; i--) {
         sufix = s + i;
         if(sufix[0] == '$')
@@ -98,7 +97,6 @@ void getSufix(Tree *t, char *s) {
                 index = 0;
             else
                 index = sufix[0] - 'a' + 1;
-            
         }
         while(sufix[0] != '\0') {
             if(aux->children[index] == NULL)
@@ -118,12 +116,65 @@ void getSufix(Tree *t, char *s) {
     }
 }
 
+void leafCounter(Tree t, int *nr) {
+    int i;
+    for (i = 0; i < 27; i++) {
+        if(t->children[i] != NULL && t->children[i]->c != 0) {
+            leafCounter(t->children[i], nr);
+        }
+    }
+    if(t->c == '$') {
+        (*nr)++;
+    }
+}
+
+void maxChildren(Tree t, int *max) {
+    int i, nr = 0;
+    for (i = 0; i < 27; i++) {
+        if(t->children[i] != NULL && t->children[i]->c != 0) {
+            nr++;
+            maxChildren(t->children[i], max);
+        }
+    }
+    if(nr > *max) {
+        *max = nr;
+    }
+}
+
+void numberKSuf(Tree t, int *nr, int k) {
+    int i;
+    for (i = 0; i < 27; i++) {
+        if(t->children[i] != NULL && t->children[i]->c != 0) {
+            numberKSuf(t->children[i], nr, k);
+        }
+    }
+    if(t->nr == k && t->c != '$' && t->children[0] != NULL && t->children[0]->c == '$') {
+        (*nr)++;
+    }
+}
+
+
 void task1(Tree *t, char **cuv, int n, FILE *g) {
     int i;
     for(i = 0; i < n; i++) {
         getSufix(&(*t), cuv[i]);
     }
     bfs(*t, g);
+}
+
+void task2(Tree *t, FILE *g, char **cuv, int n, int k) {
+    int nr = 0, i, max = 0, ksuf = 0;
+    for(i = 0; i < n; i++) {
+        getSufix(&(*t), cuv[i]);
+    }
+    leafCounter(*t, &nr);
+    fprintf(g, "%d\n", nr);
+
+    numberKSuf(*t, &ksuf, k);
+    fprintf(g, "%d\n", ksuf);
+
+    maxChildren(*t, &max);
+    fprintf(g, "%d\n", max);
 }
 
 void freeMemory(Tree *t) {
@@ -137,13 +188,23 @@ void freeMemory(Tree *t) {
 }
 
 int main (int argc, char *argv[]) {
-    int n, i;
+    int n, i, k;
     Tree t;
     char opt, **cuv;
-
+    FILE *f, *g;
     // deschidem fisierele
-    FILE *f = fopen(argv[2], "r");
-    FILE *g = fopen(argv[3], "w");
+    if(strstr(argv[2], ".in") && strstr(argv[3], ".out")) {
+        f = fopen(argv[2], "r");
+        g = fopen(argv[3], "w");
+    }
+    else if(strstr(argv[3], ".in") && strstr(argv[4], ".out")) {
+        f = fopen(argv[3], "r");
+        g = fopen(argv[4], "w");
+    }
+        else {
+            printf("Fisierele nu sunt introduse corect\n");
+            return 1;
+        }
 
     // citim datele din fisier
     fscanf(f, "%d", &n);
@@ -169,6 +230,8 @@ int main (int argc, char *argv[]) {
                 task1(&t, cuv, n, g);
                 break;
             case '2':
+                k = atoi(argv[2]);
+                task2(&t, g, cuv, n, k);
                 break;
             case '3':
                 break;
