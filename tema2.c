@@ -153,6 +153,24 @@ void numberKSuf(Tree t, int *nr, int k) {
     }
 }
 
+int checkSuf(Tree t, char *suf) {
+    int i, rez = 0;
+    Tree aux = t;
+    if(suf[0] == '\0') {
+        return 1;
+    }
+    for(i = 0; i < 27; i++) {
+        if(aux->children[i] != NULL) {
+            if(suf[0] == aux->children[i]->c) {
+                rez += checkSuf(aux->children[i], suf + 1);
+            }
+        }
+    }
+    return rez;
+}
+
+void compakt();
+
 
 void task1(Tree *t, char **cuv, int n, FILE *g) {
     int i;
@@ -177,6 +195,29 @@ void task2(Tree *t, FILE *g, char **cuv, int n, int k) {
     fprintf(g, "%d\n", max);
 }
 
+void task3(Tree *t, char **cuv, char **suf, int n, int m, FILE *g) {
+    int i;
+    for(i = 0; i < n; i++) {
+        getSufix(&(*t), cuv[i]);
+    }
+    for(i = 0; i < m; i++) {
+        if(checkSuf(*t, suf[i])) {
+            fprintf(g, "1\n");
+        }
+        else {
+            fprintf(g, "0\n");
+        }
+    }
+}
+
+void task4(Tree *t, char **cuv, int n, FILE *g) {
+    int i;
+    for(i = 0; i < n; i++) {
+        getSufix(&(*t), cuv[i]);
+    }
+    bfs(*t, g);
+}
+
 void freeMemory(Tree *t) {
     int i;
     for (i = 0; i < 27; i++) {
@@ -188,9 +229,9 @@ void freeMemory(Tree *t) {
 }
 
 int main (int argc, char *argv[]) {
-    int n, i, k;
+    int n, m, i, k;
     Tree t;
-    char opt, **cuv;
+    char opt, **cuv, **suf;
     FILE *f, *g;
     // deschidem fisierele
     if(strstr(argv[2], ".in") && strstr(argv[3], ".out")) {
@@ -205,15 +246,6 @@ int main (int argc, char *argv[]) {
             printf("Fisierele nu sunt introduse corect\n");
             return 1;
         }
-
-    // citim datele din fisier
-    fscanf(f, "%d", &n);
-    cuv = (char**) malloc(n * sizeof(char*));
-    for (i = 0; i < n; i++) {
-        cuv[i] = (char*) malloc(100 * sizeof(char));
-        fscanf(f, "%s", cuv[i]);
-        strcat(cuv[i], "$");
-    }
     // initializam arborele
     init(&t);
     // verificam daca fisierele sunt introduse corect
@@ -227,15 +259,57 @@ int main (int argc, char *argv[]) {
         opt = argv[1][2];
         switch (opt) {
             case '1':
+                // citim datele din fisier
+                fscanf(f, "%d", &n);
+                cuv = (char**) malloc(n * sizeof(char*));
+                for (i = 0; i < n; i++) {
+                    cuv[i] = (char*) malloc(100 * sizeof(char));
+                    fscanf(f, "%s", cuv[i]);
+                    strcat(cuv[i], "$");
+                }
                 task1(&t, cuv, n, g);
                 break;
             case '2':
+                // citim datele din fisier
+                fscanf(f, "%d", &n);
+                cuv = (char**) malloc(n * sizeof(char*));
+                for (i = 0; i < n; i++) {
+                    cuv[i] = (char*) malloc(100 * sizeof(char));
+                    fscanf(f, "%s", cuv[i]);
+                    strcat(cuv[i], "$");
+                }
                 k = atoi(argv[2]);
                 task2(&t, g, cuv, n, k);
                 break;
             case '3':
+                fscanf(f, "%d%d", &n, &m);
+                cuv = (char**) malloc(n * sizeof(char*));
+                suf = (char**) malloc(m * sizeof(char*));
+                for (i = 0; i < n; i++) {
+                    cuv[i] = (char*) malloc(100 * sizeof(char));
+                    fscanf(f, "%s", cuv[i]);
+                    // printf("%s\n", cuv[i]);
+                    strcat(cuv[i], "$");
+                }
+                for(i = 0; i < m; i++) {
+                    suf[i] = (char*) malloc(100 * sizeof(char));
+                    fscanf(f, "%s", suf[i]);
+                    strcat(suf[i], "$");
+                    suf[i][strlen(suf[i])] = '\0';
+                    // printf("%s\n", suf[i]);
+                }
+                task3(&t, cuv, suf, n, m, g);
                 break;
-            case 4:
+            case '4':
+                // citim datele din fisier
+                fscanf(f, "%d", &n);
+                cuv = (char**) malloc(n * sizeof(char*));
+                for (i = 0; i < n; i++) {
+                    cuv[i] = (char*) malloc(100 * sizeof(char));
+                    fscanf(f, "%s", cuv[i]);
+                    strcat(cuv[i], "$");
+                }
+                task4(&t, cuv, n, g);
                 break;
             default:
                 printf("Optiunea nu exista\n");
