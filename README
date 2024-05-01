@@ -1,0 +1,57 @@
+===============================================================================
+
+Tema realizata de Abăhnencei Alin Andrei
+
+===============================================================================
+
+Punctaj obtinut:
+
+    *Total: 70/95p
+    *Bonus: 15/20p
+
+===============================================================================
+
+    Pentru rezolvarea temei am implementat un meniu pentru a separa cele 4 ce-
+rinte. In rezolvare am implementat urmatoarele functii:
+
+    *void init(Tree *t); -> initializeaza arborele de sufixe.
+    *void bfs(Tree t, FILE *g); -> realizeaza parcurgerea in latime si afiseaza
+        nodurile arborelui pe nivele.
+    *void getSufix(Tree *t, char *s); -> parcurge sufixele unui cuvant si le
+        adauga la arbore.
+    *void leafCounter(Tree t, int *nr); -> determina numarul de noduri de tip
+        frunza.
+    *void maxChildren(Tree t, int *max); -> determina numarul maxim de copii
+        ai unui nod.
+    *void numberKSuf(Tree t, int *nr, int k); -> determina numarul de sufixe
+        de lungime k.
+    *int checkSuf(Tree t, char *suf); -> verifica daca un sufix se afla in
+        arbore.
+    *void bfsCompakt(Tree t, FILE *g); -> parcurge arborele in latime.
+        Este folosita in cadrul cerintei 4, deoarece afiseaza siruri de carac-
+        tere.
+    *void compakt(Tree *t); -> realizeaza compactarea arborelui de sufixe
+    *void task1(Tree *t, char **cuv, int n, FILE *g); -> rezolva cerinta 1:
+        genereaza arborele si il afiseaza pe nivele.
+    *void task2(Tree *t, FILE *g, char **cuv, int n, int k); -> rezolva
+        cerinta 2: aplica operatiile de determinare a numarului de frunze,
+        numarului maxim de copii ai unui nod si al numarului de sufixe de lun-
+        gime k.
+    *void task3(Tree *t, char **cuv, char **suf, int n, int m, FILE *g);
+        -> rezolva cerinta 3: verifica daca sufixele date ca parametru se afla
+        in arbore.
+    *void task4(Tree *t, char **cuv, int n, FILE *g); -> Rezolva cerinta 4:
+        genereaza arborele de sufixe, iar apoi il compacteaza si il afiseaza
+        pe nivele.
+    *void freeMemory(Tree *t); -> elibereaza memoria alocata pentru arbore,
+        parcurgandu-l in adancime si eliberand fiecare nod la intoarcerea
+        din recursie.
+    *int main(); -> in programul principal deschidem, mai intai, fisierele
+        de intrare si iesire date ca parametri in linia de comanda. In cazul
+        in care nu au fost conforme, se afiseaza un mesaj de eroare, iar pro-
+        gramul se opreste. Apoi, am construit un meniu pentru rezolvarea celor
+        4 cerinte in mod individual. In final, am eliberat memoria alocata
+        pentru stocarea datelor de intrare si am inchis fisierele.
+
+===============================================================================
+    
