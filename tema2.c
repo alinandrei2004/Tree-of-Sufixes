@@ -1,3 +1,5 @@
+// ABĂHNENCEI Alin Andrei - 312CC
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,31 +18,30 @@ typedef struct queue {
 // functie pentru initializarea arborelui
 void init(Tree *t) {
     int i;
-    *t = malloc(sizeof(Node));
+    *t = calloc(1, sizeof(Node));
     for (i = 0; i < 27; i++) {
-        (*t)->children[i] = malloc(sizeof(Node));
+        (*t)->children[i] = calloc(1, sizeof(Node));
         (*t)->children[i]->c[0] = 0;
         (*t)->children[i]->nr = 1;
     }
-    // (*t)->children[0]->c = '$';
     (*t)->nr = 0;
 }
 
 // parcurgem arborele in latime
 void bfs(Tree t, FILE *g) {
-    Queue *first = NULL, *last = NULL, *aux;
+    Queue *first = NULL, *last = NULL, *aux = NULL, *new = NULL;
     int i, flag = 1;
     // punem in coada copiii de pe primul nivel
     for (i = 0; i < 27; i++) {
         if(t->children[i]->c[0] != 0) {
             if(first == NULL) {
-                first = malloc(sizeof(Queue));
+                first = calloc(1, sizeof(Queue));
                 first->t = t->children[i];
                 first->next = NULL;
                 last = first;
             }
             else {
-                aux = malloc(sizeof(Queue));
+                aux = calloc(1, sizeof(Queue));
                 aux->t = t->children[i];
                 aux->next = NULL;
                 last->next = aux;
@@ -58,17 +59,25 @@ void bfs(Tree t, FILE *g) {
         for (i = 0; i < 27; i++) {
             if (aux->t->children[i] != NULL && aux->t->children[i]->c[0] != 0) {
                 if (last == NULL) {
-                    first = malloc(sizeof(Queue));
+                    first = calloc(1, sizeof(Queue));
                     first->t = aux->t->children[i];
                     first->next = NULL;
                     last = first;
                 }
                 else {
-                    Queue *new = malloc(sizeof(Queue));
-                    new->t = aux->t->children[i];
-                    new->next = NULL;
-                    last->next = new;
-                    last = new;
+                    if (last == NULL) {
+                        first = calloc(1, sizeof(Queue));
+                        first->t = aux->t->children[i];
+                        first->next = NULL;
+                        last = first;
+                    }
+                    else {
+                        new = calloc(1, sizeof(Queue));
+                        new->t = aux->t->children[i];
+                        new->next = NULL;
+                        last->next = new;
+                        last = new;
+                    }
                 }
             }
         }
@@ -77,18 +86,20 @@ void bfs(Tree t, FILE *g) {
     }
     if(last->t->c[0] != 0) {
         fprintf(g, "\n%c ", last->t->c[0]);
+        free(last);
     }
+    free(first);
     fprintf(g, "\n");
 }
 
 // generam arborele de sufixe
 void getSufix(Tree *t, char *s) {
-    int i, j, len, index;
-    Tree aux, current = *t;
-    char *sufix = (char*) malloc(100 * sizeof(char));
+    int i, j, len = 0, index = 0;
+    Tree aux = NULL, current = *t;
+    // char *sufix = (char*) malloc(100 * sizeof(char));
     len = strlen(s);
     for (i = len - 1; i >= 0; i--) {
-        sufix = s + i;
+        char *sufix = s + i;
         // calculam pozitia pe care trebuie sa adaugam o litera
         if(sufix[0] == '$')
             index = 0;
@@ -108,7 +119,7 @@ void getSufix(Tree *t, char *s) {
         while(sufix[0] != '\0') {
             if(aux->children[index] == NULL)
                 for (j = 0; j < 27; j++) {
-                    aux->children[j] = malloc(sizeof(Node));
+                    aux->children[j] = calloc(1, sizeof(Node));
                     aux->children[j]->c[0] = 0;
                     aux->children[j]->nr = aux->nr + 1;
                 }
@@ -120,6 +131,7 @@ void getSufix(Tree *t, char *s) {
             aux = aux->children[index];
             sufix++;
         }
+        // free(sufix);
     }
 }
 
@@ -184,7 +196,7 @@ int checkSuf(Tree t, char *suf) {
 // parcurgere in latime pentru arbore de siruri
 // este folosita in cadrul taskului 4
 void bfsCompakt(Tree t, FILE *g) {
-    Queue *first = NULL, *last = NULL, *aux;
+    Queue *first = NULL, *last = NULL, *aux = NULL;
     int i, flag = 1;
     for (i = 0; i < 27; i++) {
         if(t->children[i] != NULL && t->children[i]->c[0] != 0) {
@@ -237,55 +249,36 @@ void bfsCompakt(Tree t, FILE *g) {
 
 // compactam arborele de sufixe
 void compakt(Tree *t) {
-    int i, j, k, ok;
+    int i, j, ok;
     for (i = 0; i < 27; i++) {
         if ((*t)->children[i] != NULL && (*t)->children[i]->c[0] != 0) {
             compakt(&(*t)->children[i]);
         }
     }
-    for (i = 0; i < 27; i++) {
-        if ((*t)->children[i] != NULL && (*t)->children[i]->c[0] != 0) {
-            if((*t)->children[i]->c[0] != '$') {
-                ok = 1;
-                // verificam daca un nod este o bifurcatie intre 2 sufixe
-                for(j = 0; j < 27; j++) {
-                    if((*t)->children[i]->children[j] != NULL && (*t)->children[i]->children[j]->c[0] != 0 && (*t)->children[i]->children[j]->c[0] == '$')
-                        ok = 0;
-                }
-                // if((*t)->children[i]->children[j - 1]->c[0] == '$')
-                //     ok = 0;
-                printf("%s %d\n", (*t)->children[i]->c, ok);
-                if(ok) {
-                    
+
+    if((*t)->c[0] != '$' && (*t)->c[0] != 0) {
+        ok = 1;
+        for(j = 0; j < 27; j++) {
+            if((*t)->children[j] != NULL && (*t)->children[j]->c[0] != 0 && (*t)->children[j]->c[0] == '$') {
+                ok = 0;
+                break;
+            }
+        }
+        if(ok) {
+            for(i = 0; i < 27; i++) {
+                if((*t)->children[i] != NULL && (*t)->children[i]->c[0] != 0) {
+                    strcat((*t)->c, (*t)->children[i]->c);
+                    for(j = 0; j < 27; j++) {
+                        if((*t)->children[i]->children[j] != NULL && (*t)->children[i]->children[j]->c[0] != 0) {
+                            (*t)->children[j] = (*t)->children[i]->children[j];
+                            (*t)->children[j]->nr = (*t)->nr + 1;
+                        }
+                    }
+                    free((*t)->children[i]);
+                    (*t)->children[i] = NULL;
+                    break;
                 }
             }
-        //     if ((*t)->children[i]->c[0] != '$' && numberChildren((*t)->children[i]) == 1) {
-        //         printf("%s %d\n", (*t)->children[i]->c, numberChildren((*t)->children[i]));
-        //         Tree child = (*t)->children[i];
-        //         for (j = 0; j < 27; j++) {
-        //             if (child->children[j] != NULL && child->children[j]->c[0] != 0) {
-        //                 // if(j > 0)
-        //                 // strcat((*t)->children[i]->c, child->children[j]->c);
-        //                 // Tree grandchild = child->children[j];
-        //                 // // Find the first non-null child of the current node and update the child pointer
-        //                 // for (k = 0; k < 27; k++) {
-        //                 //     if (grandchild->children[k] != NULL && grandchild->children[k]->c[0] != 0) {
-        //                 //         (*t)->children[i]->children[j] = grandchild->children[k];
-        //                 //         break;
-        //                 //     }
-        //                 // }
-        //                 // // Free the redundant child node
-        //                 // if (k == 27) {
-        //                 //     free(grandchild);
-        //                 //     (*t)->children[i]->children[j] = NULL;
-        //                 // }
-        //                 // break;
-        //             }
-        //         }
-        //     }
-        //     else if((*t)->children[i]->c[0] != '$' && numberChildren((*t)->children[i]) == 0) {
-                
-        //     }
         }
     }
 }
@@ -346,19 +339,21 @@ void task4(Tree *t, char **cuv, int n, FILE *g) {
 
 // eliberam memoria alocata pentru arbore
 void freeMemory(Tree *t) {
+    if (*t == NULL) {
+        return;
+    }
     int i;
     for (i = 0; i < 27; i++) {
-        if ((*t)->children[i]->c[0] != 0) {
-            freeMemory(&(*t)->children[i]);
-        }
+        freeMemory(&((*t)->children[i]));
     }
-    free(t);
+    free(*t);
+    *t = NULL;
 }
 
 int main (int argc, char *argv[]) {
-    int n, m, i, k;
-    Tree t;
-    char opt, **cuv, **suf;
+    int n = 0, m = 0, i = 0, k = 0;
+    Tree t = NULL;
+    char opt, **cuv = NULL, **suf = NULL;
     FILE *f, *g;
     // deschidem fisierele
     if(strstr(argv[2], ".in") && strstr(argv[3], ".out")) {
@@ -379,7 +374,7 @@ int main (int argc, char *argv[]) {
     if(argc < 4) {
         printf("Fisierele nu sunt introduse corect\n");
         freeMemory(&t);
-        return 1;
+        // return 1;
     }
     else {
         // construim un meniu pentru cerinte
@@ -439,6 +434,7 @@ int main (int argc, char *argv[]) {
                 printf("Optiunea nu exista\n");
                 return 1;
         }
+        freeMemory(&t);
     }
 
     // eliberam memoria
@@ -446,6 +442,10 @@ int main (int argc, char *argv[]) {
         free(cuv[i]);
     }
     free(cuv);
+    for (i = 0; i < m; i++) {
+        free(suf[i]);
+    }
+    free(suf);
 
     // inchidem fisierele utilizate
     fclose(f);
